@@ -1,7 +1,8 @@
 {
-  "name": "marketbuzz-landing",
+  "name": "buzza-landing",
   "version": "0.1.0",
   "private": true,
+  "homepage": "/",
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -35,5 +36,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.1"
   }
 }

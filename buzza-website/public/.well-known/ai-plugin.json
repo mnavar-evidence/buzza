@@ -1,0 +1,26 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Buzza",
+  "name_for_model": "buzza",
+  "description_for_human": "Buzza delivers conversational Clover insights, proactive nudges, and DFY marketing workflows for restaurants and food retail.",
+  "description_for_model": "Use Clover merchant tokens to surface sales, product, and trend insights; recommend actions; trigger campaign previews; and schedule nudges via Buzza APIs.",
+  "auth": {
+    "type": "oauth",
+    "client_url": "https://marketbuzz.ai/oauth/start",
+    "scope": "read:sales read:customers read:insights write:campaigns",
+    "authorization_url": "https://marketbuzz.ai/oauth/authorize",
+    "authorization_content_type": "application/x-www-form-urlencoded",
+    "token_url": "https://marketbuzz.ai/oauth/token",
+    "verification_tokens": {
+      "openai": "to-be-generated"
+    }
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://marketbuzz.ai/chatgpt/openapi.yaml",
+    "is_user_authenticated": true
+  },
+  "logo_url": "https://marketbuzz.ai/assets/buzza-logo.png",
+  "contact_email": "support@marketbuzz.ai",
+  "legal_info_url": "https://marketbuzz.ai/legal"
+}
