@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: transparent;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .eyebrow {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(15, 23, 42, 0.65);
+    }
+    h1 {
+      font-size: 1.15rem;
+      margin: 0;
+    }
+    .metric-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    .change {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .change.up { color: #059669; }
+    .change.down { color: #dc2626; }
+    .change.flat { color: #4b5563; }
+    .supporting {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+    }
+    .supporting-item {
+      background: rgba(255, 255, 255, 0.55);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .supporting-label {
+      font-size: 0.75rem;
+      color: rgba(15, 23, 42, 0.6);
+    }
+    .supporting-value {
+      font-weight: 600;
+    }
+    .flags {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 0.9rem;
+    }
+    .cta {
+      margin-top: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: #047857;
+    }
+  </style>
+</head>
+<body>
+  <div class="card" role="group" aria-labelledby="card-title">
+    <div class="eyebrow" id="timeframe"></div>
+    <h1 id="card-title"></h1>
+    <div>
+      <div class="metric-value" id="metric-value"></div>
+      <div class="change" id="metric-change"></div>
+    </div>
+    <p id="summary"></p>
+    <div class="supporting" id="supporting"></div>
+    <div>
+      <strong>Signals</strong>
+      <ul class="flags" id="flags"></ul>
+    </div>
+    <div class="cta" id="cta"></div>
+  </div>
+  <script>
+    const directionSymbols = { up: "▲", down: "▼", flat: "–" };
+
+    function getToolOutput() {
+      const api = window.openai || {};
+      return api.toolOutput || (typeof api.getToolOutput === "function" ? api.getToolOutput() : {});
+    }
+
+    function render() {
+      const data = getToolOutput() || {};
+      const card = data.card || {};
+      document.getElementById("timeframe").textContent = `Timeframe: ${data.timeframe ?? "n/a"}`;
+      document.getElementById("card-title").textContent = card.title ?? "Sales snapshot";
+      document.getElementById("metric-value").textContent = card.metric?.value ?? "–";
+
+      const changeEl = document.getElementById("metric-change");
+      const direction = card.metric?.direction ?? "flat";
+      const changeDisplay = card.metric?.change_pct ?? "";
+      changeEl.textContent = changeDisplay ? `${directionSymbols[direction] ?? ""} ${changeDisplay}` : "";
+      changeEl.className = `change ${direction ?? "flat"}`;
+
+      document.getElementById("summary").textContent = card.summary ?? "Ask for next actions to keep momentum.";
+
+      const supporting = data.supporting_metrics || card.supporting_metrics || [];
+      const supportingRoot = document.getElementById("supporting");
+      supportingRoot.innerHTML = "";
+      supporting.forEach((item) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "supporting-item";
+        const label = document.createElement("div");
+        label.className = "supporting-label";
+        label.textContent = item.label ?? "";
+        const value = document.createElement("div");
+        value.className = "supporting-value";
+        value.textContent = item.value ?? "";
+        wrapper.append(label, value);
+        if (item.annotation) {
+          const note = document.createElement("div");
+          note.style.fontSize = "0.75rem";
+          note.style.color = "rgba(15,23,42,0.55)";
+          note.textContent = item.annotation;
+          wrapper.append(note);
+        }
+        supportingRoot.append(wrapper);
+      });
+
+      const flagsEl = document.getElementById("flags");
+      flagsEl.innerHTML = "";
+      (data.top_flags || []).forEach((flag) => {
+        const li = document.createElement("li");
+        li.textContent = flag.message ?? "";
+        flagsEl.append(li);
+      });
+
+      const cta = card.cta;
+      const ctaEl = document.getElementById("cta");
+      if (cta?.label) {
+        ctaEl.textContent = `${cta.label} →`;
+      } else {
+        ctaEl.textContent = "";
+      }
+    }
+
+    render();
+    const api = window.openai || {};
+    if (typeof api.subscribe === "function") {
+      api.subscribe(render);
+    }
+  </script>
+</body>
+</html>

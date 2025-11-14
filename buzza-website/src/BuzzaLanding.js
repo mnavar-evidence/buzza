@@ -348,11 +348,11 @@ const BuzzaLanding = () => {
             Rebrand your Clover presence as Buzza, invite merchants to the demo, and watch engagement rise as insights turn into action.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="mailto:hello@marketbuzz.ai" className="bg-white text-green-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100">
+            <a href="mailto:hello@buzza.ai" className="bg-white text-green-600 px-6 py-3 rounded-md font-semibold hover:bg-gray-100">
               Book a Strategy Session
             </a>
             <a
-              href="https://marketbuzz.ai/launch-checklist"
+              href="https://buzza.ai/launch-checklist"
               className="border border-white px-6 py-3 rounded-md font-semibold hover:bg-green-600/80"
             >
               Download Launch Checklist

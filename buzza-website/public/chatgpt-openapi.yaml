@@ -1,25 +1,23 @@
 openapi: 3.1.0
 info:
-  title: Buzza API
+  title: Buzza Mock API
   version: "0.1.0"
   description: |
-    Mockable API for the Buzza ChatGPT integration. Supports demo-mode
-    insights as well as authenticated Clover merchant access once OAuth is
-    completed.
+    Mock API for the Buzza ChatGPT integration. Supports demo-mode insights
+    using a sample Clover merchant. Future versions will toggle to live data
+    once OAuth is completed.
 servers:
-  - url: https://api.marketbuzz.ai
-    description: Production
-  - url: https://sandbox.marketbuzz.ai
-    description: Sandbox / demo mode
-security:
-  - oauth2: [read:sales, read:customers, read:insights]
+  - url: http://localhost:4000
+    description: Local mock server
+  - url: https://api.buzza.ai
+    description: Production (coming soon)
+  - url: https://sandbox.buzza.ai
+    description: Sandbox / demo mode (coming soon)
+security: []
 paths:
   /insights/sales:
     get:
       summary: Retrieve summarized sales metrics for the current period.
-      description: |
-        Returns aggregated sales stats, comparisons, and flags. Supports
-        demo-mode when `demo_mode=true` is supplied.
       operationId: listSalesInsights
       parameters:
         - in: query
@@ -28,11 +26,6 @@ paths:
             type: string
             enum: [today, yesterday, seven_days, thirty_days, custom]
           description: Reporting window. Defaults to `seven_days`.
-        - in: query
-          name: demo_mode
-          schema:
-            type: boolean
-          description: Enable synthetic insights for prospective merchants.
       responses:
         "200":
           description: Sales insight payload.
@@ -45,6 +38,7 @@ paths:
                   summary: Demo sales insight
                   value:
                     merchant_id: demo-cafe-001
+                    merchant_name: Buzza Demo Cafe
                     timeframe: seven_days
                     gross_sales: 18250.43
                     net_sales: 17100.12
@@ -67,10 +61,6 @@ paths:
           schema:
             type: string
             default: thirty_days
-        - in: query
-          name: demo_mode
-          schema:
-            type: boolean
       responses:
         "200":
           description: Product level insight list.
@@ -82,6 +72,7 @@ paths:
                 demo:
                   value:
                     merchant_id: demo-cafe-001
+                    merchant_name: Buzza Demo Cafe
                     timeframe: thirty_days
                     winners:
                       - product_id: latte-12oz
@@ -108,10 +99,6 @@ paths:
             type: string
             enum: [short_term, medium_term]
             default: short_term
-        - in: query
-          name: demo_mode
-          schema:
-            type: boolean
       responses:
         "200":
           description: Trend spotting results.
@@ -123,25 +110,23 @@ paths:
                 demo:
                   value:
                     merchant_id: demo-cafe-001
+                    merchant_name: Buzza Demo Cafe
+                    horizon: short_term
                     insights:
-                      - id: trend-20240915-evening
+                      - id: trend-20241010-evening
                         category: foot_traffic
                         severity: medium
                         message: Evening walk-ins down 12% for two consecutive weeks.
                         suggested_prompts:
                           - "Buzza, should I close early today?"
-                          - "Can you ask Buzza to draft a lunch promo?"
+                          - "Can you ask Buzza to draft a happy hour promo?"
         "401":
           $ref: '#/components/responses/UnauthorizedError'
   /campaigns/preview:
     post:
       summary: Generate a ready-to-send campaign preview.
-      description: |
-        Creates a draft SMS or email using recommended segmentation and
-        messaging. Requires write permissions.
       operationId: createCampaignPreview
-      security:
-        - oauth2: [write:campaigns]
+      security: []
       requestBody:
         required: true
         content:
@@ -155,8 +140,6 @@ paths:
                   goal: reactivate_dormant_customers
                   tone: upbeat
                   offer: "Buy 1 get 1 50% off on fall lattes"
-                  audience_filter:
-                    last_visit_before_days: 45
       responses:
         "200":
           description: Campaign draft details.
@@ -169,9 +152,11 @@ paths:
                   value:
                     preview_id: prev-abc123
                     channel: sms
+                    merchant_id: demo-cafe-001
                     recommended_send_time: "2024-09-20T15:00:00-05:00"
                     audience_size: 132
                     message: "Hey Buzza Cafe fam! Miss you. Swing by today and get your second latte 50% off. Show this text."
+                    follow_up_prompt: "Would you like to schedule this send or edit the tone?"
         "400":
           description: Invalid request payload.
         "401":
@@ -182,8 +167,8 @@ components:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: https://marketbuzz.ai/oauth/authorize
-          tokenUrl: https://marketbuzz.ai/oauth/token
+          authorizationUrl: https://buzza.ai/oauth/authorize
+          tokenUrl: https://buzza.ai/oauth/token
           scopes:
             read:sales: Access sales performance metrics.
             read:customers: Access customer segmentation data.
@@ -201,6 +186,8 @@ components:
       type: object
       properties:
         merchant_id:
+          type: string
+        merchant_name:
           type: string
         timeframe:
           type: string
@@ -232,6 +219,8 @@ components:
       type: object
       properties:
         merchant_id:
+          type: string
+        merchant_name:
           type: string
         timeframe:
           type: string
@@ -265,6 +254,10 @@ components:
       type: object
       properties:
         merchant_id:
+          type: string
+        merchant_name:
+          type: string
+        horizon:
           type: string
         insights:
           type: array
@@ -318,6 +311,8 @@ components:
         preview_id:
           type: string
         channel:
+          type: string
+        merchant_id:
           type: string
         recommended_send_time:
           type: string

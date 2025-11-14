@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: transparent;
+    }
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .card {
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(234, 179, 8, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+    .badge.low { background: rgba(34, 197, 94, 0.18); color: #047857; }
+    .badge.medium { background: rgba(234, 179, 8, 0.25); color: #b45309; }
+    .badge.high { background: rgba(248, 113, 113, 0.2); color: #b91c1c; }
+    .summary {
+      font-size: 0.95rem;
+    }
+    .prompts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .prompt {
+      padding: 4px 8px;
+      border-radius: 9999px;
+      background: rgba(30, 64, 175, 0.12);
+      font-size: 0.75rem;
+    }
+    .cta {
+      font-weight: 600;
+      color: #1d4ed8;
+    }
+  </style>
+</head>
+<body>
+  <div class="list" id="cards"></div>
+  <script>
+    function getToolOutput() {
+      const api = window.openai || {};
+      return api.toolOutput || (typeof api.getToolOutput === "function" ? api.getToolOutput() : {});
+    }
+
+    function renderCard(card) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "card";
+      const titleRow = document.createElement("div");
+      titleRow.className = "title-row";
+      const title = document.createElement("h2");
+      title.textContent = card.title ?? "Trend";
+      title.style.fontSize = "1rem";
+      title.style.margin = "0";
+      const badge = document.createElement("span");
+      badge.className = `badge ${card.severity ?? "low"}`;
+      badge.textContent = card.severity ?? "low";
+      titleRow.append(title, badge);
+      wrapper.append(titleRow);
+
+      if (card.summary) {
+        const summary = document.createElement("p");
+        summary.className = "summary";
+        summary.textContent = card.summary;
+        wrapper.append(summary);
+      }
+
+      if (card.follow_up_prompts?.length) {
+        const prompts = document.createElement("ul");
+        prompts.className = "prompts";
+        card.follow_up_prompts.forEach((prompt) => {
+          const li = document.createElement("li");
+          li.className = "prompt";
+          li.textContent = prompt;
+          prompts.append(li);
+        });
+        wrapper.append(prompts);
+      }
+
+      if (card.cta?.label) {
+        const cta = document.createElement("div");
+        cta.className = "cta";
+        cta.textContent = `${card.cta.label} →`;
+        wrapper.append(cta);
+      }
+
+      return wrapper;
+    }
+
+    function render() {
+      const data = getToolOutput() || {};
+      const root = document.getElementById("cards");
+      root.innerHTML = "";
+      (data.carousel || []).forEach((card) => {
+        root.append(renderCard(card));
+      });
+      if (!root.children.length) {
+        const empty = document.createElement("p");
+        empty.textContent = "No trend signals found.";
+        root.append(empty);
+      }
+    }
+
+    render();
+    const api = window.openai || {};
+    if (typeof api.subscribe === "function") {
+      api.subscribe(render);
+    }
+  </script>
+</body>
+</html>

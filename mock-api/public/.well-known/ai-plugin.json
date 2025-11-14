@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Buzza (Mock)",
+  "name_for_model": "buzza_mock",
+  "description_for_human": "Mock conversational Clover insights, nudges, and marketing workflows for a demo cafe.",
+  "description_for_model": "Provide sales, product, and trend insights plus campaign previews for the demo merchant using mock data.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "http://localhost:4000/chatgpt-openapi.yaml",
+    "is_user_authenticated": false
+  },
+  "logo_url": "https://buzza.ai/assets/buzza-logo.png",
+  "contact_email": "support@buzza.ai",
+  "legal_info_url": "https://buzza.ai/legal"
+}

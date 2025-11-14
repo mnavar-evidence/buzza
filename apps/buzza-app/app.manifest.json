@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0.0",
+  "name": "Buzza Mock Insights",
+  "description": "Surface sales, product, trend insights, daily highlight cards, and campaign previews for the Buzza Demo Cafe using the mock API.",
+  "version": "0.1.0",
+  "contact_email": "support@buzza.ai",
+  "legal_url": "https://buzza.ai/legal",
+  "capabilities": {
+    "tools": [
+      {
+        "type": "openapi",
+        "name": "buzzaMockApi",
+        "spec_url": "http://localhost:4000/chatgpt-openapi.yaml"
+      }
+    ]
+  },
+  "runtime": {
+    "app_base_url": "http://localhost:4000"
+  }
+}

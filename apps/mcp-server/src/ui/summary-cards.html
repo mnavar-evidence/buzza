@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: transparent;
+    }
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+    @media (min-width: 640px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .card {
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(16, 185, 129, 0.08);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card:nth-child(2n) {
+      background: rgba(37, 99, 235, 0.08);
+    }
+    h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+    .metric-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(15, 23, 42, 0.6);
+    }
+    .metric-value {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+    .summary {
+      font-size: 0.9rem;
+    }
+    .cta {
+      font-weight: 600;
+      color: #047857;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid" id="summary-cards"></div>
+  <script>
+    function getToolOutput() {
+      const api = window.openai || {};
+      return api.toolOutput || (typeof api.getToolOutput === "function" ? api.getToolOutput() : {});
+    }
+
+    function renderCard(card) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "card";
+      const title = document.createElement("h2");
+      title.textContent = card.title ?? "Highlight";
+      wrapper.append(title);
+
+      if (card.metric) {
+        const label = document.createElement("div");
+        label.className = "metric-label";
+        label.textContent = card.metric.label ?? "";
+        const value = document.createElement("div");
+        value.className = "metric-value";
+        value.textContent = card.metric.value ?? "–";
+        wrapper.append(label, value);
+      }
+
+      if (card.summary) {
+        const summary = document.createElement("p");
+        summary.className = "summary";
+        summary.textContent = card.summary;
+        wrapper.append(summary);
+      }
+
+      if (card.preview) {
+        const preview = document.createElement("p");
+        preview.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, Monaco";
+        preview.style.fontSize = "0.85rem";
+        preview.style.background = "rgba(255,255,255,0.6)";
+        preview.style.padding = "8px";
+        preview.style.borderRadius = "10px";
+        preview.textContent = card.preview;
+        wrapper.append(preview);
+      }
+
+      if (card.cta?.label) {
+        const cta = document.createElement("div");
+        cta.className = "cta";
+        cta.textContent = `${card.cta.label} →`;
+        wrapper.append(cta);
+      }
+
+      return wrapper;
+    }
+
+    function render() {
+      const data = getToolOutput() || {};
+      const root = document.getElementById("summary-cards");
+      root.innerHTML = "";
+      (data.cards || []).forEach((card) => {
+        root.append(renderCard(card));
+      });
+      if (!root.children.length) {
+        const empty = document.createElement("p");
+        empty.textContent = "No summary highlights available.";
+        root.append(empty);
+      }
+    }
+
+    render();
+    const api = window.openai || {};
+    if (typeof api.subscribe === "function") {
+      api.subscribe(render);
+    }
+  </script>
+</body>
+</html>

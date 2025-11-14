@@ -1,0 +1,480 @@
+openapi: 3.1.0
+info:
+  title: Buzza Mock API
+  version: "0.1.0"
+  description: |
+    Mock API for the Buzza ChatGPT integration. Supports demo-mode insights
+    using a sample Clover merchant. Future versions will toggle to live data
+    once OAuth is completed.
+servers:
+  - url: http://localhost:4000
+    description: Local mock server
+  - url: https://api.buzza.ai
+    description: Production (coming soon)
+  - url: https://sandbox.buzza.ai
+    description: Sandbox / demo mode (coming soon)
+security: []
+paths:
+  /insights/sales:
+    get:
+      summary: Retrieve summarized sales metrics for the current period.
+      operationId: listSalesInsights
+      parameters:
+        - in: query
+          name: timeframe
+          schema:
+            type: string
+            enum: [today, yesterday, seven_days, thirty_days, custom]
+          description: Reporting window. Defaults to `seven_days`.
+      responses:
+        "200":
+          description: Sales insight payload.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SalesInsight'
+              examples:
+                demo:
+                  summary: Demo sales insight
+                  value:
+                    merchant_id: demo-cafe-001
+                    merchant_name: Buzza Demo Cafe
+                    timeframe: seven_days
+                    gross_sales: 18250.43
+                    net_sales: 17100.12
+                    avg_ticket: 18.34
+                    change_vs_prior: -0.08
+                    top_flags:
+                      - type: negative_trend
+                        message: Monday lunch revenue fell 15% week-over-week.
+                      - type: opportunity
+                        message: Upsell pastries after 3pm to lift ticket size.
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+  /insights/products:
+    get:
+      summary: Top and declining products with recommendations.
+      operationId: listProductInsights
+      parameters:
+        - in: query
+          name: timeframe
+          schema:
+            type: string
+            default: thirty_days
+      responses:
+        "200":
+          description: Product level insight list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductInsightResponse'
+              examples:
+                demo:
+                  value:
+                    merchant_id: demo-cafe-001
+                    merchant_name: Buzza Demo Cafe
+                    timeframe: thirty_days
+                    winners:
+                      - product_id: latte-12oz
+                        name: Vanilla Oat Latte
+                        share_of_sales: 0.18
+                        lift_vs_average: 0.12
+                        recommended_action: Promote during morning rush with SMS.
+                    underperformers:
+                      - product_id: breakfast-burrito
+                        name: Sunrise Burrito
+                        share_of_sales: 0.04
+                        change_vs_prior: -0.22
+                        recommended_action: Bundle with drip coffee at $9.99.
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+  /insights/trends:
+    get:
+      summary: Detect emerging anomalies and demand shifts.
+      operationId: listTrendInsights
+      parameters:
+        - in: query
+          name: horizon
+          schema:
+            type: string
+            enum: [short_term, medium_term]
+            default: short_term
+      responses:
+        "200":
+          description: Trend spotting results.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrendInsightResponse'
+              examples:
+                demo:
+                  value:
+                    merchant_id: demo-cafe-001
+                    merchant_name: Buzza Demo Cafe
+                    horizon: short_term
+                    insights:
+                      - id: trend-20241010-evening
+                        category: foot_traffic
+                        severity: medium
+                        message: Evening walk-ins down 12% for two consecutive weeks.
+                        suggested_prompts:
+                          - "Buzza, should I close early today?"
+                          - "Can you ask Buzza to draft a happy hour promo?"
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+  /campaigns/preview:
+    post:
+      summary: Generate a ready-to-send campaign preview.
+      operationId: createCampaignPreview
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CampaignPreviewRequest'
+            examples:
+              sms_demo:
+                value:
+                  channel: sms
+                  goal: reactivate_dormant_customers
+                  tone: upbeat
+                  offer: "Buy 1 get 1 50% off on fall lattes"
+      responses:
+        "200":
+          description: Campaign draft details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CampaignPreviewResponse'
+              examples:
+                demo:
+                  value:
+                    preview_id: prev-abc123
+                    channel: sms
+                    merchant_id: demo-cafe-001
+                    recommended_send_time: "2024-09-20T15:00:00-05:00"
+                    audience_size: 132
+                    message: "Hey Buzza Cafe fam! Miss you. Swing by today and get your second latte 50% off. Show this text."
+                    follow_up_prompt: "Would you like to schedule this send or edit the tone?"
+        "400":
+          description: Invalid request payload.
+        "401":
+          $ref: '#/components/responses/UnauthorizedError'
+  /conversation/summary:
+    get:
+      summary: Return the top-of-mind dashboard cards for the demo merchant.
+      description: |
+        Provides a curated set of metric cards that mirror the production dashboard
+        experience in a conversational-friendly format.
+      operationId: listConversationSummary
+      responses:
+        "200":
+          description: Conversation summary cards.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationSummaryResponse'
+  /conversation/nudges:
+    get:
+      summary: Recommended actions and nudges for the merchant.
+      operationId: listConversationNudges
+      responses:
+        "200":
+          description: Carousel-friendly list of actions.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationNudgesResponse'
+components:
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://buzza.ai/oauth/authorize
+          tokenUrl: https://buzza.ai/oauth/token
+          scopes:
+            read:sales: Access sales performance metrics.
+            read:customers: Access customer segmentation data.
+            read:insights: Access generated insights and recommendations.
+            write:campaigns: Create marketing campaign drafts and nudges.
+  responses:
+    UnauthorizedError:
+      description: Missing or invalid authorization.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+  schemas:
+    SalesInsight:
+      type: object
+      properties:
+        merchant_id:
+          type: string
+        merchant_name:
+          type: string
+        timeframe:
+          type: string
+        gross_sales:
+          type: number
+          format: float
+        net_sales:
+          type: number
+          format: float
+        avg_ticket:
+          type: number
+          format: float
+        change_vs_prior:
+          type: number
+          description: Percent change expressed as a decimal.
+        top_flags:
+          type: array
+          items:
+            $ref: '#/components/schemas/InsightFlag'
+        card:
+          $ref: '#/components/schemas/InsightCard'
+        supporting_metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardSupportingMetric'
+    InsightFlag:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [opportunity, negative_trend, alert]
+        message:
+          type: string
+    ProductInsightResponse:
+      type: object
+      properties:
+        merchant_id:
+          type: string
+        merchant_name:
+          type: string
+        timeframe:
+          type: string
+        winners:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductInsight'
+        underperformers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductInsight'
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/InsightCard'
+    ProductInsight:
+      type: object
+      properties:
+        product_id:
+          type: string
+        name:
+          type: string
+        share_of_sales:
+          type: number
+          format: float
+        lift_vs_average:
+          type: number
+          format: float
+        change_vs_prior:
+          type: number
+          format: float
+        recommended_action:
+          type: string
+    InsightCard:
+      type: object
+      description: Structured payload for rendering a conversational card.
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        metric:
+          $ref: '#/components/schemas/CardMetric'
+        items:
+          type: array
+          description: Optional list representation used for product spotlights or watchlists.
+          items:
+            $ref: '#/components/schemas/CardItem'
+        summary:
+          type: string
+        preview:
+          type: string
+          description: Optional short snippet or talking point to display within the card.
+        supporting_metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardSupportingMetric'
+        cta:
+          $ref: '#/components/schemas/CardCTA'
+    CardMetric:
+      type: object
+      properties:
+        label:
+          type: string
+        value:
+          type: string
+        change_pct:
+          type: string
+          nullable: true
+        direction:
+          type: string
+          enum: [up, down, flat]
+          nullable: true
+    CardSupportingMetric:
+      type: object
+      properties:
+        label:
+          type: string
+        value:
+          type: string
+        annotation:
+          type: string
+          nullable: true
+    CardItem:
+      type: object
+      properties:
+        label:
+          type: string
+        value:
+          type: string
+        annotation:
+          type: string
+          nullable: true
+    CardCTA:
+      type: object
+      properties:
+        label:
+          type: string
+        follow_up_prompt:
+          type: string
+    TrendInsightResponse:
+      type: object
+      properties:
+        merchant_id:
+          type: string
+        merchant_name:
+          type: string
+        horizon:
+          type: string
+        insights:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendInsight'
+        carousel:
+          type: array
+          description: Ordered list of cards suitable for an inline carousel.
+          items:
+            $ref: '#/components/schemas/TrendCarouselItem'
+    TrendInsight:
+      type: object
+      properties:
+        id:
+          type: string
+        category:
+          type: string
+          enum: [foot_traffic, revenue, campaign, staffing]
+        severity:
+          type: string
+          enum: [low, medium, high]
+        message:
+          type: string
+        suggested_prompts:
+          type: array
+          items:
+            type: string
+    TrendCarouselItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high]
+        summary:
+          type: string
+        follow_up_prompts:
+          type: array
+          items:
+            type: string
+        cta:
+          $ref: '#/components/schemas/CardCTA'
+    CampaignPreviewRequest:
+      type: object
+      required:
+        - channel
+        - goal
+      properties:
+        channel:
+          type: string
+          enum: [sms, email]
+        goal:
+          type: string
+          enum: [reactivate_dormant_customers, boost_loyalty, drive_new_visits]
+        tone:
+          type: string
+        offer:
+          type: string
+        audience_filter:
+          type: object
+          properties:
+            last_visit_before_days:
+              type: integer
+            frequency_segment:
+              type: string
+            lifetime_value_min:
+              type: number
+    CampaignPreviewResponse:
+      type: object
+      properties:
+        preview_id:
+          type: string
+        channel:
+          type: string
+        merchant_id:
+          type: string
+        recommended_send_time:
+          type: string
+          format: date-time
+        audience_size:
+          type: integer
+        message:
+          type: string
+        follow_up_prompt:
+          type: string
+          description: Suggested next question for the merchant.
+    ConversationSummaryResponse:
+      type: object
+      properties:
+        merchant_id:
+          type: string
+        merchant_name:
+          type: string
+        cards:
+          type: array
+          items:
+            $ref: '#/components/schemas/InsightCard'
+    ConversationNudgesResponse:
+      type: object
+      properties:
+        merchant_id:
+          type: string
+        merchant_name:
+          type: string
+        carousel:
+          type: array
+          items:
+            $ref: '#/components/schemas/InsightCard'
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
