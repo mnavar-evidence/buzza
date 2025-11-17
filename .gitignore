@@ -9,6 +9,10 @@ coverage/
 # production builds
 build/
 build-for-deploy/
+dist/
+
+# package managers
+package-lock.json
 
 # misc
 .DS_Store
