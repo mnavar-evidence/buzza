@@ -7,6 +7,8 @@ info:
     using a sample Clover merchant. Future versions will toggle to live data
     once OAuth is completed.
 servers:
+  - url: https://buzza-mock-api-production.up.railway.app
+    description: Production (Railway)
   - url: http://localhost:4000
     description: Local mock server
   - url: https://api.buzza.ai

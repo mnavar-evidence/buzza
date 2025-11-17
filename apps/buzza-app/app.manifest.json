@@ -10,11 +10,11 @@
       {
         "type": "openapi",
         "name": "buzzaMockApi",
-        "spec_url": "http://localhost:4000/chatgpt-openapi.yaml"
+        "spec_url": "https://buzza-mock-api-production.up.railway.app/chatgpt-openapi.yaml"
       }
     ]
   },
   "runtime": {
-    "app_base_url": "http://localhost:4000"
+    "app_base_url": "https://buzza-mock-api-production.up.railway.app"
   }
 }
