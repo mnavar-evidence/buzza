@@ -58,9 +58,8 @@ export function createMcpServer(): McpServer {
               `Sales over ${insight.timeframe} totaled $${insight.gross_sales.toFixed(2)}.`,
           },
           ...(insight.chart_url ? [{
-            type: "image" as const,
-            data: insight.chart_url,
-            mimeType: "image/png" as const,
+            type: "text" as const,
+            text: `\n\n![Sales Chart](${insight.chart_url})\n\n[View full chart](${insight.chart_url})`,
           }] : []),
         ],
         _meta: {
@@ -107,9 +106,8 @@ export function createMcpServer(): McpServer {
               `Top product: ${insight.winners[0]?.name ?? "n/a"}.`,
           },
           ...(insight.chart_url ? [{
-            type: "image" as const,
-            data: insight.chart_url,
-            mimeType: "image/png" as const,
+            type: "text" as const,
+            text: `\n\n![Product Performance](${insight.chart_url})\n\n[View chart](${insight.chart_url})`,
           }] : []),
         ],
         _meta: {
@@ -154,9 +152,8 @@ export function createMcpServer(): McpServer {
             text: `Detected ${insight.carousel.length} trend signals for review.`,
           },
           ...(insight.chart_url ? [{
-            type: "image" as const,
-            data: insight.chart_url,
-            mimeType: "image/png" as const,
+            type: "text" as const,
+            text: `\n\n![Trend Analysis](${insight.chart_url})\n\n[View chart](${insight.chart_url})`,
           }] : []),
         ],
         _meta: {
@@ -207,9 +204,8 @@ export function createMcpServer(): McpServer {
             text: `Drafted ${preview.channel.toUpperCase()} campaign for ${preview.goal.replace(/_/g, " ")}.`,
           },
           ...(preview.chart_url ? [{
-            type: "image" as const,
-            data: preview.chart_url,
-            mimeType: "image/png" as const,
+            type: "text" as const,
+            text: `\n\n![Audience Breakdown](${preview.chart_url})\n\n[View chart](${preview.chart_url})`,
           }] : []),
         ],
         _meta: {
@@ -246,9 +242,8 @@ export function createMcpServer(): McpServer {
             text: summary.cards[0]?.summary ?? "Here are the latest highlights.",
           },
           ...(summary.chart_url ? [{
-            type: "image" as const,
-            data: summary.chart_url,
-            mimeType: "image/png" as const,
+            type: "text" as const,
+            text: `\n\n![Daily Summary](${summary.chart_url})\n\n[View chart](${summary.chart_url})`,
           }] : []),
         ],
         _meta: {
@@ -286,9 +281,8 @@ export function createMcpServer(): McpServer {
             text: `${nudges.carousel.length} actions you can take right now.`,
           },
           ...(nudges.chart_url ? [{
-            type: "image" as const,
-            data: nudges.chart_url,
-            mimeType: "image/png" as const,
+            type: "text" as const,
+            text: `\n\n![Action Priority Matrix](${nudges.chart_url})\n\n[View chart](${nudges.chart_url})`,
           }] : []),
         ],
         _meta: {
