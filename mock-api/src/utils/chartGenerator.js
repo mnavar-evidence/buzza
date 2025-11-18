@@ -15,10 +15,16 @@ function createChart(config, width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT) {
 async function renderChart(config, width, height) {
   const chart = createChart(config, width, height);
   try {
-    return await chart.getShortUrl();
+    // Generate base64 data URI to bypass CSP restrictions
+    // Data URIs are inline content, not external resources, so they work
+    // even when Widget CSP has empty connect_domains/resource_domains arrays
+    const binary = await chart.toBinary();
+    const base64 = binary.toString('base64');
+    return `data:image/png;base64,${base64}`;
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error('QuickChart short URL fallback', error);
+    console.error('QuickChart binary generation failed, falling back to URL', error);
+    // Fallback to URL for debugging (won't work in ChatGPT due to CSP)
     return chart.getUrl();
   }
 }
