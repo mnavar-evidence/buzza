@@ -64,8 +64,8 @@ export function registerResources(server: McpServer) {
               "openai/widgetDescription": template.description,
               "openai/widgetPrefersBorder": true,
               "openai/widgetCSP": {
-                connect_domains: [],
-                resource_domains: [],
+                connect_domains: ["quickchart.io"],
+                resource_domains: ["quickchart.io"],
               },
             },
           },
