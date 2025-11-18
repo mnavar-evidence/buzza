@@ -46,6 +46,7 @@ type SalesInsight = {
   top_flags: Array<{ type: string; message: string }>;
   card: InsightCard;
   supporting_metrics?: CardItem[];
+  chart_url?: string;
 };
 
 type ProductInsight = {
@@ -69,6 +70,7 @@ type ProductInsight = {
     recommended_action: string;
   }>;
   cards: InsightCard[];
+  chart_url?: string;
 };
 
 type TrendInsightResponse = {
@@ -83,6 +85,7 @@ type TrendInsightResponse = {
     suggested_prompts?: string[];
   }>;
   carousel: InsightCard[];
+  chart_url?: string;
 };
 
 type CampaignPreviewRequest = {
@@ -101,18 +104,21 @@ type CampaignPreviewResponse = {
   audience_size: number;
   message: string;
   follow_up_prompt: string;
+  chart_url?: string;
 };
 
 type ConversationSummaryResponse = {
   merchant_id: string;
   merchant_name: string;
   cards: InsightCard[];
+  chart_url?: string;
 };
 
 type ConversationNudgesResponse = {
   merchant_id: string;
   merchant_name: string;
   carousel: InsightCard[];
+  chart_url?: string;
 };
 
 export async function fetchSalesInsight(timeframe: string): Promise<SalesInsight> {

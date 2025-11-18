@@ -48,6 +48,7 @@ export function createMcpServer(): McpServer {
           supporting_metrics:
             insight.card.supporting_metrics ?? insight.supporting_metrics ?? [],
           top_flags: insight.top_flags,
+          chart_url: insight.chart_url,
         },
         content: [
           {
@@ -56,6 +57,11 @@ export function createMcpServer(): McpServer {
               insight.card.summary ??
               `Sales over ${insight.timeframe} totaled $${insight.gross_sales.toFixed(2)}.`,
           },
+          ...(insight.chart_url ? [{
+            type: "image" as const,
+            data: insight.chart_url,
+            mimeType: "image/png" as const,
+          }] : []),
         ],
         _meta: {
           merchant_id: insight.merchant_id,
@@ -91,6 +97,7 @@ export function createMcpServer(): McpServer {
         structuredContent: {
           timeframe: insight.timeframe,
           cards: insight.cards,
+          chart_url: insight.chart_url,
         },
         content: [
           {
@@ -99,6 +106,11 @@ export function createMcpServer(): McpServer {
               insight.cards[0]?.summary ??
               `Top product: ${insight.winners[0]?.name ?? "n/a"}.`,
           },
+          ...(insight.chart_url ? [{
+            type: "image" as const,
+            data: insight.chart_url,
+            mimeType: "image/png" as const,
+          }] : []),
         ],
         _meta: {
           merchant_id: insight.merchant_id,
@@ -134,12 +146,18 @@ export function createMcpServer(): McpServer {
         structuredContent: {
           horizon: insight.horizon,
           carousel: insight.carousel,
+          chart_url: insight.chart_url,
         },
         content: [
           {
             type: "text",
             text: `Detected ${insight.carousel.length} trend signals for review.`,
           },
+          ...(insight.chart_url ? [{
+            type: "image" as const,
+            data: insight.chart_url,
+            mimeType: "image/png" as const,
+          }] : []),
         ],
         _meta: {
           merchant_id: insight.merchant_id,
@@ -181,12 +199,18 @@ export function createMcpServer(): McpServer {
       return {
         structuredContent: {
           preview,
+          chart_url: preview.chart_url,
         },
         content: [
           {
             type: "text",
             text: `Drafted ${preview.channel.toUpperCase()} campaign for ${preview.goal.replace(/_/g, " ")}.`,
           },
+          ...(preview.chart_url ? [{
+            type: "image" as const,
+            data: preview.chart_url,
+            mimeType: "image/png" as const,
+          }] : []),
         ],
         _meta: {
           merchant_id: preview.merchant_id,
@@ -214,12 +238,18 @@ export function createMcpServer(): McpServer {
       return {
         structuredContent: {
           cards: summary.cards,
+          chart_url: summary.chart_url,
         },
         content: [
           {
             type: "text",
             text: summary.cards[0]?.summary ?? "Here are the latest highlights.",
           },
+          ...(summary.chart_url ? [{
+            type: "image" as const,
+            data: summary.chart_url,
+            mimeType: "image/png" as const,
+          }] : []),
         ],
         _meta: {
           merchant_id: summary.merchant_id,
@@ -248,12 +278,18 @@ export function createMcpServer(): McpServer {
       return {
         structuredContent: {
           carousel: nudges.carousel,
+          chart_url: nudges.chart_url,
         },
         content: [
           {
             type: "text",
             text: `${nudges.carousel.length} actions you can take right now.`,
           },
+          ...(nudges.chart_url ? [{
+            type: "image" as const,
+            data: nudges.chart_url,
+            mimeType: "image/png" as const,
+          }] : []),
         ],
         _meta: {
           merchant_id: nudges.merchant_id,
