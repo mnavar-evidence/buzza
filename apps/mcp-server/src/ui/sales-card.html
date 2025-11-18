@@ -90,6 +90,7 @@
     </div>
     <p id="summary"></p>
     <div class="supporting" id="supporting"></div>
+    <img id="chart" style="width: 100%; max-width: 640px; height: auto; border-radius: 8px; margin: 12px 0; display: none;" alt="Sales trend chart" />
     <div>
       <strong>Signals</strong>
       <ul class="flags" id="flags"></ul>
@@ -118,6 +119,14 @@
       changeEl.className = `change ${direction ?? "flat"}`;
 
       document.getElementById("summary").textContent = card.summary ?? "Ask for next actions to keep momentum.";
+
+      const chartEl = document.getElementById("chart");
+      if (data.chart_url) {
+        chartEl.src = data.chart_url;
+        chartEl.style.display = "block";
+      } else {
+        chartEl.style.display = "none";
+      }
 
       const supporting = data.supporting_metrics || card.supporting_metrics || [];
       const supportingRoot = document.getElementById("supporting");

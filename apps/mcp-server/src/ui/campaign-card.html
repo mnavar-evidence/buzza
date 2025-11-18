@@ -79,11 +79,21 @@
       cta.textContent = preview.follow_up_prompt ? `${preview.follow_up_prompt} →` : "Ask for scheduling or edits.";
     }
 
+    const chartEl = document.getElementById("chart");
+      if (data.chart_url) {
+        chartEl.src = data.chart_url;
+        chartEl.style.display = "block";
+      } else {
+        chartEl.style.display = "none";
+      }
+    }
+
     render();
     const api = window.openai || {};
     if (typeof api.subscribe === "function") {
       api.subscribe(render);
     }
   </script>
+  <img id="chart" style="width: 100%; max-width: 640px; height: auto; border-radius: 8px; margin: 16px 0; display: none;" alt="Chart" />
 </body>
 </html>
