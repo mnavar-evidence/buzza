@@ -41,6 +41,11 @@ export function createMcpServer(): McpServer {
     },
     async ({ timeframe = "seven_days" }) => {
       const insight = await fetchSalesInsight(timeframe);
+      console.log('[Sales Tool] Insight data:', JSON.stringify({
+        timeframe: insight.timeframe,
+        chart_url: insight.chart_url,
+        has_card: !!insight.card,
+      }));
       return {
         structuredContent: {
           timeframe: insight.timeframe,

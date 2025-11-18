@@ -107,6 +107,13 @@
 
     function render() {
       const data = getToolOutput() || {};
+      console.log('[Sales Card] Received data:', JSON.stringify({
+        timeframe: data.timeframe,
+        chart_url: data.chart_url,
+        has_card: !!data.card,
+        card_title: data.card?.title,
+        all_keys: Object.keys(data),
+      }));
       const card = data.card || {};
       document.getElementById("timeframe").textContent = `Timeframe: ${data.timeframe ?? "n/a"}`;
       document.getElementById("card-title").textContent = card.title ?? "Sales snapshot";
